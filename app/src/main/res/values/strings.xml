@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">NMLab1OscarReviews</string>
+    <string name="best_picture">Best Picture</string>
+    <string name="best_actor">Best Actor</string>
+    <string name="best_actress">Best Actress</string>
+    <string name="film_editing">Film Editing</string>
+    <string name="visual_effects">Visual Effects</string>
+    <string name="category_of_nomination">Category of Nomination</string>
+    <string name="nominee">Nominee</string>
+    <string name="review">Review</string>
+    <string name="send_review">Send Review</string>
+    <string name="anonymous">Anonymous</string>
+    <string name="current_user">Current User:</string>
+</resources>
