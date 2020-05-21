@@ -7,4 +7,5 @@
     <item
         android:id="@+id/menu_item_view_reviews"
         android:title="View Reviews" />
+
 </menu>

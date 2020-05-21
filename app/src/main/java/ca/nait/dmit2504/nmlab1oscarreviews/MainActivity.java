@@ -2,8 +2,11 @@ package ca.nait.dmit2504.nmlab1oscarreviews;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceManager;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,13 +20,15 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.w3c.dom.Text;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.scalars.ScalarsConverterFactory;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = MainActivity.class.getSimpleName();
     private TextView mReviewerText;
     private EditText mReviewText;
@@ -31,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
     //private EditText mPasswordText;
     private RadioGroup radioGroup;
     private String category;
+    private String password;
 
 
     private Button mSendButton;
@@ -40,16 +46,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         //find all view's in layout
         mSendButton = findViewById(R.id.activity_post_button);
         mReviewerText = findViewById(R.id.activity_post_reviewer_TextView);
         mReviewText = findViewById(R.id.activity_post_review_edittext);
         mNomineeText = findViewById(R.id.activity_post_nominee_edittext);
         radioGroup = findViewById(R.id.activity_post_radiogroup);
-        //password is hardcoded temporarily, fix when preferences is finished.
-        String password = "oscar275";
 
-        //radiogroup listener
+        password = prefs.getString("password_prefs", " ");
+        mReviewerText.setText(prefs.getString("username_prefs","Anonymous"));
+
+
 
 
 
@@ -65,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
             getCall.enqueue(new Callback<String>() {
                 @Override
                 public void onResponse(Call<String> call, Response<String> response) {
+
                     Log.i(TAG, "Post was successful");
                     mNomineeText.setText("");
                     mReviewText.setText("");
@@ -101,6 +110,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.activity_post_effects_radiobutton:
                 category = "effects";
                 break;
+            default:
+                category = "";
+                break;
 
         }
     }
@@ -119,15 +131,50 @@ public class MainActivity extends AppCompatActivity {
         // Get the id of the selected menu item
         switch (item.getItemId()) {
             case R.id.menu_item_preferences:
-                Intent goToPreferenceIntent = new Intent(this, MainActivity.class);
+                Intent goToPreferenceIntent = new Intent(this, SettingsActivity.class);
                 startActivity(goToPreferenceIntent);
                 return true;
             case R.id.menu_item_view_reviews:
+                int checkedId = radioGroup.getCheckedRadioButtonId();
+                findRadioButton(checkedId);
                 Intent listOscarIntent = new Intent(this, ViewReviews.class);
+                listOscarIntent.putExtra("category",category);
                 startActivity(listOscarIntent);
                 return true;
+
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String username = prefs.getString("username_prefs", "Anonymous");
+        String password = prefs.getString("password_pref", "Password2504");
+
+
+
+        TextView usernameText = findViewById(R.id.activity_post_reviewer_TextView);
+        usernameText.setText(username);
+
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.unregisterOnSharedPreferenceChangeListener(this);
+        password = prefs.getString("password_prefs", " ");
+
     }
 }

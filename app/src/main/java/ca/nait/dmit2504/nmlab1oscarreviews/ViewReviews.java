@@ -2,6 +2,7 @@ package ca.nait.dmit2504.nmlab1oscarreviews;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ListView;
@@ -26,6 +27,8 @@ public class ViewReviews extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_reviews);
+        Intent intent = getIntent();
+        String extra = intent.getStringExtra("category");
 
         mOscarListView = findViewById(R.id.activity_view_listview);
         Retrofit retrofit = new Retrofit.Builder()
@@ -41,15 +44,16 @@ public class ViewReviews extends AppCompatActivity {
                 String responseBody = response.body();
 
                 List<Oscar> oscarList = new ArrayList<>();
-                String[] oscarArray = responseBody.split("\r\n");
+                //had to remove \r from .split, would not split properly if last submission ended in multiple blank fields
+                String[] oscarArray = responseBody.split("\n");
                 int oscarArrayLength = oscarArray.length;
                 for (int i = 0; i < oscarArrayLength; i += 5) {
                     Oscar currentOscar = new Oscar();
                     String date = oscarArray[i];
-                    String reviewer = oscarArray[i+1];
-                    String category = oscarArray[i + 2];
+                    String reviewer = oscarArray[i + 1];
+                    String category = oscarArray[i + 2].replace("\r","");
                     String nominee = oscarArray[i + 3];
-                    String review = oscarArray[i+4];
+                    String review = oscarArray[i + 4];
 
                     currentOscar.setDate(date);
                     currentOscar.setReviewer(reviewer);
@@ -57,9 +61,12 @@ public class ViewReviews extends AppCompatActivity {
                     currentOscar.setNominee(nominee);
                     currentOscar.setReview(review);
 
-                    oscarList.add(currentOscar);
+                    if (category.equals(extra)) {
+                        oscarList.add(currentOscar);
+                    }
+
+
                 }
-                ListView oscarsListView = findViewById(R.id.activity_view_listview);
                 OscarListViewAdapter oscarAdapter = new OscarListViewAdapter(getApplicationContext(),oscarList);
                 mOscarListView.setAdapter(oscarAdapter);
             }
